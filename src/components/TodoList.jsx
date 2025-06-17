@@ -6,23 +6,37 @@ import './TodoList.css';
 export default function TodoList() {
   const { todos, setTodos } = useContext(AppContext);
   const [task, setTask] = useState("");
-  const API = import.meta.env.VITE_API_URL;
+
+  // Fallback to deployed backend if env not set
+  const API = import.meta.env.VITE_API_URL || "https://todo-node-app-rho.vercel.app";
 
   const fetchTodos = async () => {
-    const res = await axios.get(`${API}/todos`);
-    setTodos(res.data);
+    try {
+      const res = await axios.get(`${API}/todos`);
+      setTodos(res.data); // assuming res.data is an array
+    } catch (err) {
+      console.error("Error fetching todos:", err.message);
+    }
   };
 
   const addTask = async () => {
     if (task.trim() === "") return;
-    await axios.post(`${API}/todos/add`, { task });
-    setTask("");
-    fetchTodos();
+    try {
+      await axios.post(`${API}/todos/add`, { content: task }); // ✅ match backend schema
+      setTask("");
+      fetchTodos();
+    } catch (err) {
+      console.error("Error adding todo:", err.message);
+    }
   };
 
   const deleteTask = async (id) => {
-    await axios.delete(`${API}/todos/${id}`);
-    fetchTodos();
+    try {
+      await axios.delete(`${API}/todos/${id}`);
+      fetchTodos();
+    } catch (err) {
+      console.error("Error deleting todo:", err.message);
+    }
   };
 
   useEffect(() => {
@@ -32,18 +46,20 @@ export default function TodoList() {
   return (
     <div className="todo-container">
       <h2>To-Do List</h2>
-      <input
-        type="text"
-        placeholder="Enter a task..."
-        value={task}
-        onChange={(e) => setTask(e.target.value)}
-      />
-      <button onClick={addTask}>Add</button>
+      <div className="todo-input-group">
+        <input
+          type="text"
+          placeholder="Enter a task..."
+          value={task}
+          onChange={(e) => setTask(e.target.value)}
+        />
+        <button onClick={addTask}>Add</button>
+      </div>
 
       <ul>
         {todos.map((t) => (
           <li key={t._id}>
-            {t.task}
+            {t.content}
             <button onClick={() => deleteTask(t._id)}>Delete</button>
           </li>
         ))}
