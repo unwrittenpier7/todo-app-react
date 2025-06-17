@@ -8,7 +8,7 @@ export default function TodoList() {
   const [task, setTask] = useState("");
 
   // Automatically use deployed backend if env variable is missing
-  const API = import.meta.env.VITE_API_URL || "https://todo-node-app-rho.vercel.app";
+  const API = import.meta.env.VITE_API_URL || "todo-node-app-git-main-joel-peters-projects.vercel.app";
 
   const fetchTodos = async () => {
     try {
