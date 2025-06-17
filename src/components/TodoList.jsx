@@ -7,40 +7,39 @@ export default function TodoList() {
   const { todos, setTodos } = useContext(AppContext);
   const [task, setTask] = useState("");
 
-  // Automatically use deployed backend if env variable is missing
-  const API = import.meta.env.VITE_API_URL || "todo-node-app-git-main-joel-peters-projects.vercel.app";
+  const API = import.meta.env.VITE_API_URL || "https://your-backend.vercel.app";
 
   const fetchTodos = async () => {
     try {
       const res = await axios.get(`${API}/todos`);
-      setTodos(res.data); // res.data should be an array
+      setTodos(res.data);
     } catch (err) {
-      console.error("Error fetching todos:", err.message);
+      console.error("GET failed:", err.message);
     }
   };
 
   const addTask = async () => {
     if (task.trim() === "") return;
     try {
-      await axios.post(`${API}/todos/add`, { content: task }); // ✅ use 'content'
+      await axios.post(`${API}/todos/add`, { content: task });
       setTask("");
-      fetchTodos(); // refresh list after adding
+      fetchTodos();
     } catch (err) {
-      console.error("Error adding task:", err.message);
+      console.error("POST failed:", err.message);
     }
   };
 
   const deleteTask = async (id) => {
     try {
       await axios.delete(`${API}/todos/${id}`);
-      fetchTodos(); // refresh list after delete
+      fetchTodos();
     } catch (err) {
-      console.error("Error deleting task:", err.message);
+      console.error("DELETE failed:", err.message);
     }
   };
 
   useEffect(() => {
-    fetchTodos(); // load tasks on mount
+    fetchTodos();
   }, []);
 
   return (
@@ -55,7 +54,6 @@ export default function TodoList() {
         />
         <button onClick={addTask}>Add</button>
       </div>
-
       <ul>
         {todos.map((t) => (
           <li key={t._id}>

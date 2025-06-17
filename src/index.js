@@ -7,23 +7,28 @@ import todoRouter from "./routes/todoRoutes.js";
 dotenv.config();
 const app = express();
 
+// Middleware
 app.use(cors());
-app.use(express.json()); // ✅ This is where it belongs
+app.use(express.json()); // ✅ VERY IMPORTANT for POST requests
 
 app.use("/todos", todoRouter);
 
-const PORT = process.env.PORT || 5000;
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  throw new Error("MONGODB_URI is not defined");
+}
 
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => console.error("MongoDB connection error:", err));
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB error:", err));
+
+// Default route for health check
+app.get("/", (req, res) => {
+  res.send("Todo backend is running");
+});
 
 export default app;
